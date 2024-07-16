@@ -1,0 +1,26 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "admin",
+    "database": "lamo_dev",
+    "host": "localhost",
+    "port": 5433,
+    "dialect": "postgres"
+  },
+  "test": {
+    "username": "postgres",
+    "password": "admin",
+    "database": "lamo_test",
+    "host": "localhost",
+    "port": 5433,
+    "dialect": "postgres"
+  },
+  "production": {
+    "username": "postgres",
+    "password": "admin",
+    "database": "lamo_production",
+    "host": "localhost",
+    "port": 5433,
+    "dialect": "postgres"
+  }
+}
