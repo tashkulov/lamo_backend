@@ -1,3 +1,5 @@
+// models/userProfile.js
+
 module.exports = (sequelize, DataTypes) => {
     const UserProfile = sequelize.define('UserProfile', {
         userId: {
@@ -26,6 +28,10 @@ module.exports = (sequelize, DataTypes) => {
         },
         bio: {
             type: DataTypes.TEXT,
+            allowNull: true
+        },
+        profileImageUrl: {
+            type: DataTypes.STRING,
             allowNull: true
         }
     }, {});

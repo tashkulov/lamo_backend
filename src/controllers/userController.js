@@ -1,4 +1,5 @@
 const { User,UserProfile, Like, Match } = require('../models');
+const path = require('path');
 
 // Создать нового пользователя
 exports.createUser = async (req, res) => {
@@ -11,12 +12,27 @@ exports.createUser = async (req, res) => {
     }
 };
 exports.createUserProfile = async (req, res) => {
+    const { userId, age, gender, interests, location, bio } = req.body;
+    let profileImageUrl = null;
+
+    if (req.file) {
+        profileImageUrl = path.join('uploads', req.file.filename); // Путь к изображению
+    }
+
     try {
-        const { userId, age, gender, interests, location, bio } = req.body;
-        const profile = await UserProfile.create({ userId, age, gender, interests, location, bio });
-        res.status(201).json(profile);
+        const userProfile = await UserProfile.create({
+            userId,
+            age,
+            gender,
+            interests,
+            location,
+            bio,
+            profileImageUrl
+        });
+
+        res.status(201).json(userProfile);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        res.status(400).json({ error: error.message });
     }
 };
 // Получить всех пользователей
@@ -28,6 +44,17 @@ exports.getAllUsers = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+exports.getAllUserProfiles = async (req, res) => {
+    try {
+        const userProfiles = await UserProfile.findAll({
+            include: [{ model: User, as: 'user' }]
+        });
+        res.status(200).json(userProfiles);
+    } catch (error) {
+        console.error('Error fetching user profiles:', error);
+        res.status(500).json({ error: 'Failed to fetch user profiles' });
+    }
+};
 
 // Получить пользователя по ID
 exports.getUserById = async (req, res) => {
@@ -37,6 +64,21 @@ exports.getUserById = async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
         res.status(200).json(user);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+};
+
+exports.getUserProfileById = async (req, res) => {
+    try {
+        const userProfile = await UserProfile.findOne({
+            where: { userId: req.params.userId },
+            include: [{ model: User, as: 'user' }]
+        });
+        if (!userProfile) {
+            return res.status(404).json({ error: 'User profile not found' });
+        }
+        res.status(200).json(userProfile);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -70,5 +112,25 @@ exports.deleteUser = async (req, res) => {
         res.status(200).json({ message: 'User deleted successfully' });
     } catch (error) {
         res.status(400).json({ error: error.message });
+    }
+};
+exports.deleteUserProfileById = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Попытка найти и удалить профиль
+        const deletedProfile = await UserProfile.destroy({
+            where: { userId }
+        });
+
+        // Проверяем, был ли профиль успешно удален
+        if (deletedProfile === 0) {
+            return res.status(404).json({ error: 'User profile not found' });
+        }
+
+        res.status(200).json({ message: 'User profile deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting user profile:', error);
+        res.status(500).json({ error: 'Failed to delete user profile' });
     }
 };
