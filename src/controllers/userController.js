@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { User,UserProfile, Like, Match } = require('../models');
 
 // Создать нового пользователя
 exports.createUser = async (req, res) => {
@@ -10,7 +10,15 @@ exports.createUser = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
-
+exports.createUserProfile = async (req, res) => {
+    try {
+        const { userId, age, gender, interests, location, bio } = req.body;
+        const profile = await UserProfile.create({ userId, age, gender, interests, location, bio });
+        res.status(201).json(profile);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
 // Получить всех пользователей
 exports.getAllUsers = async (req, res) => {
     try {
